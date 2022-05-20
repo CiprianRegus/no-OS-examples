@@ -1,6 +1,6 @@
 /***************************************************************************//**
- *   @file   parameters.c
- *   @brief  Definition of stm32 platform data used by iio_demo project.
+ *   @file   iio_sw_trigger_example.c
+ *   @brief  Implementation of IIO sw trigger example for iio_demo project.
  *   @author RBolboac (ramona.bolboaca@analog.com)
 ********************************************************************************
  * Copyright 2022(c) Analog Devices, Inc.
@@ -40,16 +40,73 @@
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
-#include "parameters.h"
+#include "iio_sw_trigger_example.h"
+#include "iio_adc_demo.h"
+#include "iio_dac_demo.h"
+#include "common_data.h"
+#include "no_os_util.h"
 
-#ifdef IIO_TIMER_TRIGGER_EXAMPLE
-extern TIM_HandleTypeDef htim13;
-struct stm32_timer_init_param adc_demo_xtip = {
-	.htimer = &htim13,
-};
+/******************************************************************************/
+/************************ Functions Definitions *******************************/
+/******************************************************************************/
+/***************************************************************************//**
+ * @brief IIO sw trigger example main execution.
+ *
+ * @return ret - Result of the example execution. If working correctly, will
+ *               execute continuously function iio_app_run_with_trigs and will
+ * 				 not return.
+*******************************************************************************/
+int iio_sw_trigger_example_main()
+{
+	int32_t status;
 
-extern TIM_HandleTypeDef htim14;
-struct stm32_timer_init_param dac_demo_xtip = {
-	.htimer = &htim14,
-};
-#endif
+	/* adc instance descriptor. */
+	struct adc_demo_desc *adc_desc;
+
+	/* dac instance descriptor. */
+	struct dac_demo_desc *dac_desc;
+
+	/* adc trigger instance descriptor. */
+	struct iio_sw_trig *adc_trig_desc;
+
+	/* iio desc */
+	struct iio_desc *iio_desc;
+
+	struct iio_data_buffer adc_buff = {
+		.buff = (void *)ADC_DDR_BASEADDR,
+		.size = MAX_SIZE_BASE_ADDR
+	};
+
+	struct iio_data_buffer dac_buff = {
+		.buff = (void *)DAC_DDR_BASEADDR,
+		.size = MAX_SIZE_BASE_ADDR
+	};
+
+	status = adc_demo_init(&adc_desc, &adc_init_par);
+	if (status)
+		return status;
+
+	status = dac_demo_init(&dac_desc, &dac_init_par);
+	if (status)
+		return status;
+
+	adc_trig_ip.iio_desc = &iio_desc;
+	status = iio_sw_trig_init(&adc_trig_desc, &adc_trig_ip);
+	if (status)
+		return status;
+
+	struct iio_app_device devices[] = {
+		IIO_APP_DEVICE("adc_demo", adc_desc,
+			       &adc_demo_iio_descriptor,&adc_buff, NULL),
+		IIO_APP_DEVICE("dac_demo", dac_desc,
+			       &dac_demo_iio_descriptor,NULL, &dac_buff)
+	};
+
+	struct iio_trigger_init trigs[] = {
+		IIO_APP_TRIGGER(ADC_DEMO_TRIG_NAME, adc_trig_desc,
+				&adc_iio_sw_trig_desc)
+	};
+
+	return iio_app_run_with_trigs(devices, NO_OS_ARRAY_SIZE(devices),
+				      trigs, NO_OS_ARRAY_SIZE(trigs), NULL, &iio_desc);
+}
