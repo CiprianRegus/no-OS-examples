@@ -74,9 +74,6 @@ int main()
 #endif
 
 #ifdef IIO_TRIGGER_EXAMPLE
-	ret = HAL_EXTI_SetConfigLine(GPIO_IRQ_EXTRA, &adxl355_exti_ip);
-	if (ret)
-		return ret;
 	ret = iio_trigger_example_main();
 #endif
 
