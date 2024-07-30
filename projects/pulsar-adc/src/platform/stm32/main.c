@@ -1,6 +1,6 @@
 /***************************************************************************//**
  *   @file   main.c
- *   @brief  Main file for xilinx platform of ad400x-fmcz project.
+ *   @brief  Main file for STM32 platform of pulsar-adc project.
  *   @author Axel Haslam (ahaslam@baylibre.com)
 ********************************************************************************
  * Copyright 2024(c) Analog Devices, Inc.
@@ -51,7 +51,7 @@
 #endif
 
 /***************************************************************************//**
- * @brief Main function execution for xilinx platform.
+ * @brief Main function execution for STM32 platform.
  *
  * @return ret - Result of the enabled examples execution.
 *******************************************************************************/
@@ -59,12 +59,16 @@ int main()
 {
 	int ret = -EINVAL;
 
-	/* Enable the instruction cache. */
-	Xil_ICacheEnable();
-	/* Enable the data cache. */
-	Xil_DCacheEnable();
-
+	stm32_init();
 #ifdef BASIC_EXAMPLE
+	struct no_os_uart_desc *uart;
+
+	ret = no_os_uart_init(&uart, &pulsar_adc_uart_ip);
+	if (ret)
+		return ret;
+
+	no_os_uart_stdio(uart);
+
 	ret = basic_example_main();
 #elif defined(IIO_EXAMPLE)
 	ret = iio_example_main();

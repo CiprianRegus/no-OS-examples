@@ -1,6 +1,6 @@
 /***************************************************************************//**
- *   @file   main.c
- *   @brief  Main file for STM32 platform of ad400x-fmcz project.
+ *   @file   basic_example.c
+ *   @brief  Implementation of IIO example for basic_demo project.
  *   @author Axel Haslam (ahaslam@baylibre.com)
 ********************************************************************************
  * Copyright 2024(c) Analog Devices, Inc.
@@ -40,40 +40,51 @@
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
-#include "platform_includes.h"
-#include "common_data.h"
-#include "no_os_error.h"
-
-#ifdef BASIC_EXAMPLE
 #include "basic_example.h"
-#elif defined(IIO_EXAMPLE)
-#include "iio_example.h"
-#endif
+#include "common_data.h"
+#include "no_os_delay.h"
+#include "no_os_util.h"
+#include "no_os_print_log.h"
+#include "pulsar_adc.h"
+
+/******************************************************************************/
+/************************ Functions Definitions *******************************/
+/******************************************************************************/
 
 /***************************************************************************//**
- * @brief Main function execution for STM32 platform.
+ * @brief basic example main execution.
  *
- * @return ret - Result of the enabled examples execution.
+ * @return ret - Result of the example execution. If working correctly, will
+ *               execute print the sample data.
 *******************************************************************************/
-int main()
+int basic_example_main()
 {
-	int ret = -EINVAL;
+	struct pulsar_adc_dev *dev;
+	uint32_t *data = ADC_DDR_BASEADDR;
+	int32_t ret, i;
+	uint16_t resolution;
+	char sign;
 
-	stm32_init();
-#ifdef BASIC_EXAMPLE
-	struct no_os_uart_desc *uart;
-
-	ret = no_os_uart_init(&uart, &ad400x_uart_ip);
+	ret = pulsar_adc_init(&dev, &pulsar_adc_init_param);
 	if (ret)
 		return ret;
 
-	no_os_uart_stdio(uart);
+	sign = dev->dev_info->sign;
+	resolution = dev->dev_info->resolution;
 
-	ret = basic_example_main();
-#elif defined(IIO_EXAMPLE)
-	ret = iio_example_main();
-#else
-#error At least one example has to be selected using y value in Makefile.
-#endif
-	return ret;
+	ret = pulsar_adc_read_data(dev, data, SAMPLES_PER_CHANNEL);
+	if (ret) {
+		pr_info("Error: pulsar_adc_read_data: %ld\n", ret);
+		pulsar_adc_remove(dev);
+		return ret;
+	}
+
+	for(i = 0, data = ADC_DDR_BASEADDR; i < SAMPLES_PER_CHANNEL; i++, data++) {
+		if (sign == 's')
+			printf("ADC: %ld\n\r", no_os_sign_extend32(*data, resolution - 1));
+		else
+			printf("ADC: %ld\n\r", *data);
+	}
+
+	return pulsar_adc_remove(dev);
 }
