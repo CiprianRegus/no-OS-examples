@@ -1,6 +1,6 @@
 /***************************************************************************//**
  *   @file   iio_example.h
- *   @brief  IIO example header file for max2201x.
+ *   @brief  IIO example header file for max22017.
  *   @author Radu Sabau (radu.sabau@analog.com)
 ********************************************************************************
  * Copyright 2024(c) Analog Devices, Inc.

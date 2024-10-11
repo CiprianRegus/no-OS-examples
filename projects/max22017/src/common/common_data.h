@@ -1,6 +1,6 @@
 /***************************************************************************//**
- *   @file   platform_includes.h
- *   @brief  Includes for used platforms used by max2201x project.
+ *   @file   common_data.h
+ *   @brief  Defines common data to be used by max22017 examples.
  *   @author Radu Sabau (radu.sabau@analog.com)
 ********************************************************************************
  * Copyright 2024(c) Analog Devices, Inc.
@@ -30,11 +30,15 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *******************************************************************************/
-#ifndef __PLATFORM_INCLUDES_H__
-#define __PLATFORM_INCLUDES_H__
+#ifndef __COMMON_DATA_H__
+#define __COMMON_DATA_H__
 
-#ifdef MAXIM_PLATFORM
-#include "maxim/parameters.h"
-#endif
+#include "platform_includes.h"
+#include "max22017.h"
 
-#endif /* __PLATFORM_INCLUDES_H__ */
+extern struct no_os_uart_init_param max22017_uart_ip;
+extern struct no_os_spi_init_param max22017_spi_ip;
+extern struct no_os_gpio_init_param max22017_rstb_ip;
+extern struct max22017_init_param max22017_ip;
+
+#endif /* __COMMON_DATA_H_ */
