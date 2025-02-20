@@ -1,0 +1,3 @@
+[submodule "no-OS-examples"]
+	path = .
+	url = https://github.com/CiprianRegus/no-OS-examples
