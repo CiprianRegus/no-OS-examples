@@ -111,7 +111,7 @@ int32_t no_os_gpio_remove(struct no_os_gpio_desc *desc)
 
 		return desc->platform_ops->gpio_ops_remove(desc);
 	}
-//
+///**/
 	return 0;
 }
 
