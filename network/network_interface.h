@@ -45,7 +45,7 @@ enum socket_protocol {
 	/** TCP Protocol */
 	PROTOCOL_TCP,
 	/** UDP Protocol */
-	PROTOCOL_UDP
+	PROTOCOL_UDP,
 };
 
 /**
